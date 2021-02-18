@@ -7,6 +7,8 @@ import lombok.Data;
  */
 @Data
 public class Point {
+    public static final Point ZERO = new Point(0, 0);
+
     private final int row;
     private final int col;
 
