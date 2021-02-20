@@ -2,7 +2,7 @@ package de.fallapalooza.streamapi.annotation.processor;
 
 import com.google.api.services.sheets.v4.model.ValueRange;
 
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * Used in tandem with a CellResolver, to convert the retrieved values into the final object
@@ -14,5 +14,5 @@ public interface ObjectResolver<T> {
      * @param values The cell values requested
      * @return The constructed object
      */
-    T convertValue(List<ValueRange> values);
+    T convertValue(Iterator<ValueRange> values);
 }

@@ -28,6 +28,12 @@ public @interface Nested {
     int length();
 
     /**
+     * A specific sheet the cell(s) are on
+     * @return The sheets the cells are on
+     */
+    String sheet() default "";
+
+    /**
      * A complex function which creates origin points based on position in the list
      * @return A generator function.
      */

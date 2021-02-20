@@ -22,4 +22,10 @@ public @interface Cell {
      * @return The column of the cell
      */
     int col();
+
+    /**
+     * The name of the sheet this cell is on
+     * @return The name of the sheet
+     */
+    String sheet() default "";
 }

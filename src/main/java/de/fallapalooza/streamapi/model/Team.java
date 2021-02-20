@@ -1,6 +1,8 @@
 package de.fallapalooza.streamapi.model;
 
-import de.fallapalooza.streamapi.annotation.*;
+import de.fallapalooza.streamapi.annotation.Cell;
+import de.fallapalooza.streamapi.annotation.Generator;
+import de.fallapalooza.streamapi.annotation.Nested;
 import lombok.Data;
 
 import java.util.List;
