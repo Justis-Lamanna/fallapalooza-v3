@@ -34,7 +34,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
         if(!cache.containsKey(clazz)) {
             FieldBasedCallback callback = new FieldBasedCallback();
             ReflectionUtils.doWithFields(clazz, callback);
-            CellDefinition<T> constructedResolver = new NestedObjectResolver<T>(clazz, callback.definitions);
+            CellDefinition<T> constructedResolver = new NestedCellDefinition<T>(clazz, callback.definitions);
             cache.put(clazz, constructedResolver);
         }
         return (CellDefinition<T>) cache.get(clazz);

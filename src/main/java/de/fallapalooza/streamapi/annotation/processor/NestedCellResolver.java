@@ -27,4 +27,9 @@ public class NestedCellResolver implements CellResolver {
                 .flatMap(gOrigin -> resolver.resolveCell(gOrigin).stream())
                 .collect(Collectors.toList());
     }
+
+    public CellResolver getResolverForIndex(int idx) {
+        Point gOrigin = generator.getOrigin(idx);
+        return origin -> resolver.resolveCell(gOrigin.add(origin));
+    }
 }

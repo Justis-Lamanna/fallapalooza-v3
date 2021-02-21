@@ -5,10 +5,7 @@ import de.fallapalooza.streamapi.annotation.model.Point;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +13,7 @@ import java.util.stream.Collectors;
  * @param <T> The type of class
  */
 @Getter
-public class NestedObjectResolver<T> implements CellDefinition<T> {
+public class NestedCellDefinition<T> implements CellDefinition<T> {
     private final Class<T> clazz;
     private final Map<String, CellDefinition<?>> definitions;
 
@@ -25,7 +22,7 @@ public class NestedObjectResolver<T> implements CellDefinition<T> {
      * @param clazz The class to construct
      * @param definitions The sub-definitions, keyed by field name
      */
-    public NestedObjectResolver(Class<T> clazz, Map<String, CellDefinition<?>> definitions) {
+    public NestedCellDefinition(Class<T> clazz, Map<String, CellDefinition<?>> definitions) {
         this.clazz = clazz;
         this.definitions = new TreeMap<>(definitions);
     }
@@ -64,5 +61,15 @@ public class NestedObjectResolver<T> implements CellDefinition<T> {
         }
 
         return obj;
+    }
+
+    @Override
+    public CellDefinition<?> getDefinitionForField(String name) {
+        return definitions.get(name);
+    }
+
+    @Override
+    public Set<String> getFields() {
+        return definitions.keySet();
     }
 }
