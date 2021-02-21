@@ -56,7 +56,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                     CellResolver cellAnnotationCellResolver = new SingleCellResolver(origin, getSheetName(annotation.sheet()));
                     ObjectResolver<?> cellAnnotationObjectResolver = getSingleCellResolverForType(field.getType());
 
-                    CellDefinition<?> cellDefinition = new CombinedCellDefinition<>(cellAnnotationCellResolver, cellAnnotationObjectResolver);
+                    CellDefinition<?> cellDefinition = new SingleCellDefinition<>(cellAnnotationCellResolver, cellAnnotationObjectResolver);
                     definitions.put(field.getName(), cellDefinition);
                 } else {
                     // One single complex object, which needs further parsing
@@ -67,7 +67,10 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 Nested annotation = field.getAnnotation(Nested.class);
                 IndexToOriginGenerator generator = getGeneratorForAnnotation(annotation);
                 if(isPrimitive(annotation.type())) {
-                    CellDefinition<?> definition = new ArrayCellDefinition<>(CellResolver.IDENTITY, getSingleCellResolverForType(field.getType()), annotation.length(), generator, getCollectorForOutput(field.getType()));
+                    CellDefinition<?> definition = new ArrayCellDefinition<>(
+                            CellResolver.identity(getSheetName(annotation.sheet())),
+                            getSingleCellResolverForType(field.getType()),
+                            annotation.length(), generator, getCollectorForOutput(field.getType()));
                     definitions.put(field.getName(), definition);
                 } else {
                     // Array of complex objects, which need further parsing.
@@ -94,15 +97,15 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
         }
 
         private <T> ObjectResolver<T> getSingleCellResolverForType(Class<T> type) {
-            if(!conversionService.canConvert(String.class, type)) {
-                throw new IllegalArgumentException("Cannot convert between String.class and field type " + type.getCanonicalName());
-            }
             return iterable -> {
                 List<String> flattenedValues = ValueRangeUtils.flatten(iterable.next());
                 if(flattenedValues.isEmpty()) {
                     return null;
-                } else {
+                } else if(conversionService.canConvert(flattenedValues.get(0).getClass(), type)){
                     return conversionService.convert(flattenedValues.get(0), type);
+                } else {
+                    throw new IllegalArgumentException("Can't convert cell of type " +
+                            flattenedValues.get(0).getClass().getCanonicalName() + " to " + type.getCanonicalName());
                 }
             };
         }

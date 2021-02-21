@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
  * @param <T> The type created by this definition
  */
 @Data
-public class CombinedCellDefinition<T> implements CellDefinition<T> {
+public class SingleCellDefinition<T> implements CellDefinition<T> {
     private final CellResolver resolver;
     private final ObjectResolver<T> objectResolver;
 

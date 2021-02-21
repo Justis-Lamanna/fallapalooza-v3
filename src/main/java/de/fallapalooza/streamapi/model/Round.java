@@ -9,13 +9,13 @@ import java.util.List;
 
 @Data
 public class Round {
-    @Cell(row = 5, col = 0)
+    @Cell(row = 5, col = 0, sheet = "Scorecard")
     private int total;
 
-    @Cell(row = 6, col = 0)
+    @Cell(row = 6, col = 0, sheet = "Scorecard")
     private String name;
 
-    @Cell(row = 6, col = 1)
+    @Cell(row = 6, col = 1, sheet = "Scorecard")
     private String episode;
 
     @Nested(type = Scores.class, length = 2, generator = @Generator(row = 0, col = 0, colOffset = 1))
@@ -23,7 +23,7 @@ public class Round {
 
     @Data
     public static class Scores {
-        @Nested(type = Integer.class, length = 5, generator = @Generator(row = 0, rowOffset = 1, col = 0))
+        @Nested(type = Integer.class, length = 5, generator = @Generator(row = 0, rowOffset = 1, col = 0), sheet = "Scorecard")
         private List<Integer> scores;
     }
 }

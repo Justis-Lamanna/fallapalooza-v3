@@ -47,7 +47,8 @@ public class NestedCellDefinition<T> implements CellDefinition<T> {
         for(String fieldName : definitions.keySet()) {
             Field field;
             try {
-                field = clazz.getField(fieldName);
+                field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
             } catch (NoSuchFieldException e) {
                 throw new IllegalArgumentException("Unable to retrieve field " + fieldName, e);
             }
@@ -55,6 +56,7 @@ public class NestedCellDefinition<T> implements CellDefinition<T> {
             Object createdObj = subDefinition.convertValue(values);
             try {
                 field.set(obj, createdObj);
+                field.setAccessible(false);
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Unable to set field " + fieldName, e);
             }
