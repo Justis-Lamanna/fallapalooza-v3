@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Uses annotations to compile a CellDefinition from a class file.
@@ -65,20 +67,22 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 Nested annotation = field.getAnnotation(Nested.class);
                 IndexToOriginGenerator generator = getGeneratorForAnnotation(annotation);
                 if(isPrimitive(annotation.type())) {
-                    // Straight-up array of normal objects.
-                    CellResolver nestedAnnotationCellResolver =
-                            new NestedCellResolver(new SingleCellResolver(Point.ZERO, getSheetName(annotation.sheet())), annotation.length(), generator);
-                    ObjectResolver<?> cellAnnotationObjectResolver = getSingleCellResolverForType(field.getType());
-
-                    definitions.put(field.getName(), new CombinedCellDefinition<>(nestedAnnotationCellResolver, cellAnnotationObjectResolver));
+                    CellDefinition<?> definition = new ArrayCellDefinition<>(CellResolver.IDENTITY, getSingleCellResolverForType(field.getType()), annotation.length(), generator, getCollectorForOutput(field.getType()));
+                    definitions.put(field.getName(), definition);
                 } else {
                     // Array of complex objects, which need further parsing.
                     CellDefinition<?> subDefinition = compile(annotation.type());
-                    CellResolver nestedAnnotationCellResolver =
-                            new NestedCellResolver(subDefinition, annotation.length(), generator);
-                    definitions.put(field.getName(), new CombinedCellDefinition<>(nestedAnnotationCellResolver, subDefinition));
+                    CellDefinition<?> definition = new ArrayCellDefinition<>(subDefinition, subDefinition, annotation.length(), generator, getCollectorForOutput(field.getType()));
+                    definitions.put(field.getName(), definition);
                 }
             }
+        }
+
+        private <T, C> Collector<T, ?, C> getCollectorForOutput(Class<C> type) {
+            if(List.class.equals(type)) {
+                return (Collector<T, ?, C>) Collectors.toList();
+            }
+            throw new IllegalArgumentException("Cannot collect to list of type " + type.getCanonicalName());
         }
 
         private String getSheetName(String sheet) {

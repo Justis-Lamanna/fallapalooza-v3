@@ -2,12 +2,15 @@ package de.fallapalooza.streamapi.annotation.processor;
 
 import de.fallapalooza.streamapi.annotation.model.Point;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * A formula which calculates the actual cell values, given some origin.
  */
 public interface CellResolver {
+    CellResolver IDENTITY = (origin) -> Collections.singletonList(origin.toExcel());
+
     /**
      * Calculate one or more cells that correspond to the constructed object
      * @param origin The origin to calculate relative to
