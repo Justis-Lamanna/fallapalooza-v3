@@ -69,14 +69,15 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 IndexToOriginGenerator generator = getGeneratorForAnnotation(annotation);
                 if(isPrimitive(annotation.type())) {
                     CellDefinition<?> definition = new ArrayCellDefinition<>(
-                            CellResolver.identity(getSheetName(annotation.sheet())),
-                            getSingleCellResolverForType(field.getType()),
+                            new SingleCellDefinition<>(
+                                    CellResolver.identity(getSheetName(annotation.sheet())),
+                                    getSingleCellResolverForType(field.getType())),
                             annotation.length(), generator, getCollectorForOutput(field.getType()));
                     definitions.put(field.getName(), definition);
                 } else {
                     // Array of complex objects, which need further parsing.
                     CellDefinition<?> subDefinition = compile(annotation.type());
-                    CellDefinition<?> definition = new ArrayCellDefinition<>(subDefinition, subDefinition, annotation.length(), generator, getCollectorForOutput(field.getType()));
+                    CellDefinition<?> definition = new ArrayCellDefinition<>(subDefinition, annotation.length(), generator, getCollectorForOutput(field.getType()));
                     definitions.put(field.getName(), definition);
                 }
             }

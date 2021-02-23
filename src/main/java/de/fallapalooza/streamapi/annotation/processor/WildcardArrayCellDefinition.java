@@ -13,12 +13,9 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * A resolver which resolves a fixed-size set of objects by moving each origin
- */
 @RequiredArgsConstructor
 @Getter
-public class ArrayCellDefinition<T, C> implements CellDefinition<C> {
+public class WildcardArrayCellDefinition<T, C> implements CellDefinition<C> {
     private final CellDefinition<T> subResolver;
     private final int size;
     private final IndexToOriginGenerator generator;
@@ -42,27 +39,11 @@ public class ArrayCellDefinition<T, C> implements CellDefinition<C> {
 
     @Override
     public CellDefinition<?> getDefinitionForField(String name) {
-        if("*".equals(name)) {
-            return new WildcardArrayCellDefinition<>(subResolver, size, generator, collector);
-        }
-        try {
-            int idx = Integer.parseInt(name);
-            if(idx < 0) {
-                throw new IllegalArgumentException("Unable to parse field " + name + " - expected non-negative number");
-            }
-
-            Point offset = generator.getOrigin(idx);
-            return new OffsetCellDefinitionWrapper<>(subResolver, offset);
-
-        } catch (NumberFormatException ex) {
-            return null;
-        }
+        return new MappingCellDefinition<>((CellDefinition<T>) subResolver.getDefinitionForField(name), size, generator, collector);
     }
 
     @Override
     public Set<String> getFields() {
-        return IntStream.range(0, size)
-                .mapToObj(Integer::toString)
-                .collect(Collectors.toSet());
+        return subResolver.getFields();
     }
 }

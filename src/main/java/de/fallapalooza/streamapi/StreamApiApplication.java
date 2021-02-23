@@ -20,9 +20,10 @@ public class StreamApiApplication {
 	@Bean
 	public Teams teams(RetrieveService retrieveService, CellDefinitionCompiler compiler) {
 		CellDefinition<Teams> teamsDefinition = compiler.compile(Teams.class);
-		Team team = retrieveService.retrieve(
+		List<String> team = (List<String>) retrieveService.retrieve(
 				teamsDefinition.getDefinitionForField("teams")
-						.getDefinitionForField("1", Team.class));
+						.getDefinitionForField("*")
+						.getDefinitionForField("name"));
 		return null;
 	}
 }
