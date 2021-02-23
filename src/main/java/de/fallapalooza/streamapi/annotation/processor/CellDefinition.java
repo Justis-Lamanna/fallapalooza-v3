@@ -1,5 +1,8 @@
 package de.fallapalooza.streamapi.annotation.processor;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.core.convert.TypeDescriptor;
+
 import java.util.Set;
 
 /**
@@ -13,6 +16,26 @@ public interface CellDefinition<T> extends CellResolver, ObjectResolver<T> {
      * @return The CellDefinition for that field
      */
     CellDefinition<?> getDefinitionForField(String name);
+
+    /**
+     * Get the CellDefinition for a specific field
+     * @param name The field name
+     * @param clazz The expected class
+     * @return The CellDefinition for that field
+     */
+    default <U> CellDefinition<U> getDefinitionForField(String name, Class<U> clazz) {
+        return (CellDefinition<U>) getDefinitionForField(name);
+    }
+
+    /**
+     * Get the CellDefinition for a specific field
+     * @param name The field name
+     * @param ref The expected class
+     * @return The CellDefinition for that field
+     */
+    default <U> CellDefinition<U> getDefinitionForField(String name, TypeReference<U> ref) {
+        return (CellDefinition<U>) getDefinitionForField(name);
+    }
 
     /**
      * Get all the fields in this definition

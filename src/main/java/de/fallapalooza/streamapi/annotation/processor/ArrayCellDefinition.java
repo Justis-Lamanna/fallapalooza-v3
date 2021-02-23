@@ -50,7 +50,8 @@ public class ArrayCellDefinition<T, C> implements CellDefinition<C> {
             }
 
             if(resolver instanceof CellDefinition) {
-                return (CellDefinition<?>) resolver;
+                Point offset = generator.getOrigin(idx);
+                return new OffsetCellDefinitionWrapper<>((CellDefinition<?>) resolver, offset);
             }
             return null;
 
