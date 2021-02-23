@@ -9,16 +9,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ValueRangeUtils {
-    public static List<String> flatten(ValueRange range) {
+    public static List<Object> flatten(ValueRange range) {
         if(range == null) return null;
         List<List<Object>> contents = range.getValues();
-        List<String> flattenedContents = new ArrayList<>();
+        List<Object> flattenedContents = new ArrayList<>();
         if(contents != null) {
             for(List<Object> subList : contents) {
                 if(subList != null) {
-                    for(Object obj : subList) {
-                        flattenedContents.add(Objects.toString(obj, null));
-                    }
+                    flattenedContents.addAll(subList);
                 }
             }
         }
@@ -26,11 +24,11 @@ public class ValueRangeUtils {
     }
 
     public static String getSingleValue(ValueRange range) {
-        List<String> flattened = flatten(range);
+        List<Object> flattened = flatten(range);
         if(flattened.isEmpty()) {
             return null;
         }
-        return flattened.get(0);
+        return Objects.toString(flattened.get(0), null);
     }
 
     public static Integer getSingleValueInteger(ValueRange range) {
@@ -39,7 +37,7 @@ public class ValueRangeUtils {
     }
 
     public static List<String> getMultiValue(ValueRange range) {
-        return flatten(range);
+        return flatten(range).stream().map(obj -> Objects.toString(obj, null)).collect(Collectors.toList());
     }
 
     public static List<Integer> getMultiValueInteger(ValueRange range) {
@@ -61,5 +59,11 @@ public class ValueRangeUtils {
             }
             return list;
         }
+    }
+
+    public static ValueRange fromConstant(Object value) {
+        ValueRange range = new ValueRange();
+        range.setValues(Collections.singletonList(Collections.singletonList(value)));
+        return range;
     }
 }

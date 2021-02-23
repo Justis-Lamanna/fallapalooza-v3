@@ -16,6 +16,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
@@ -44,7 +45,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
 
     @Getter
     private class FieldBasedCallback implements ReflectionUtils.FieldCallback {
-        private final Map<String, CellDefinition<?>> definitions = new HashMap<>();
+        private final Map<String, CellDefinition<?>> definitions = new LinkedHashMap<>();
 
         @Override
         public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
@@ -98,7 +99,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
 
         private <T> ObjectResolver<T> getSingleCellResolverForType(Class<T> type) {
             return iterable -> {
-                List<String> flattenedValues = ValueRangeUtils.flatten(iterable.next());
+                List<Object> flattenedValues = ValueRangeUtils.flatten(iterable.next());
                 if(flattenedValues.isEmpty()) {
                     return null;
                 } else if(conversionService.canConvert(flattenedValues.get(0).getClass(), type)){

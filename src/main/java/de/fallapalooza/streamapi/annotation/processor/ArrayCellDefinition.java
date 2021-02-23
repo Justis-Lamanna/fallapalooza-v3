@@ -56,7 +56,7 @@ public class ArrayCellDefinition<T, C> implements CellDefinition<C> {
             return null;
 
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Unable to parse field " + name + " - expected non-negative number");
+            return null;
         }
     }
 

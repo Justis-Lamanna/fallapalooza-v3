@@ -3,6 +3,7 @@ package de.fallapalooza.streamapi.annotation.retrieve;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import de.fallapalooza.streamapi.annotation.exception.SheetsRetrieveException;
 import de.fallapalooza.streamapi.annotation.model.Point;
 import de.fallapalooza.streamapi.annotation.processor.CellDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class SheetsApiRetrieveService implements RetrieveService {
             Iterator<ValueRange> values = response.getValueRanges().iterator();
             return definition.convertValue(values);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot connect to sheets API", e);
+            throw new SheetsRetrieveException("Cannot connect to sheets API", e);
         }
     }
 }

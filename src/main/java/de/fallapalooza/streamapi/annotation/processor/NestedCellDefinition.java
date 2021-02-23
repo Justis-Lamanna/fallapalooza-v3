@@ -24,7 +24,7 @@ public class NestedCellDefinition<T> implements CellDefinition<T> {
      */
     public NestedCellDefinition(Class<T> clazz, Map<String, CellDefinition<?>> definitions) {
         this.clazz = clazz;
-        this.definitions = new TreeMap<>(definitions);
+        this.definitions = new LinkedHashMap<>(definitions);
     }
 
     @Override
