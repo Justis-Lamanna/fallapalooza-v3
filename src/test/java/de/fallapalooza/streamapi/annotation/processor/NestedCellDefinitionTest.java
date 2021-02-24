@@ -1,6 +1,7 @@
 package de.fallapalooza.streamapi.annotation.processor;
 
 import com.google.api.services.sheets.v4.model.ValueRange;
+import de.fallapalooza.streamapi.annotation.Bed;
 import de.fallapalooza.streamapi.annotation.model.Point;
 import de.fallapalooza.streamapi.util.ValueRangeUtils;
 import org.junit.jupiter.api.Test;
@@ -38,9 +39,9 @@ class NestedCellDefinitionTest {
         NestedCellDefinition<Bed> definition = new NestedCellDefinition<>(Bed.class, SUBDEFS);
         Bed bed = definition.convertValue(values.iterator());
 
-        assertEquals(1, bed.one);
-        assertEquals(2, bed.two);
-        assertEquals(3, bed.three);
+        assertEquals(1, bed.getOne());
+        assertEquals(2, bed.getTwo());
+        assertEquals(3, bed.getThree());
     }
 
     @Test
@@ -65,9 +66,4 @@ class NestedCellDefinitionTest {
         assertNull(definition.getDefinitionForField("asdf"));
     }
 
-    public static class Bed {
-        int one;
-        int two;
-        int three;
-    }
 }

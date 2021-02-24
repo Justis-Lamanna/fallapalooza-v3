@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SheetsApiRetrieveService implements RetrieveService {
@@ -29,6 +30,22 @@ public class SheetsApiRetrieveService implements RetrieveService {
             BatchGetValuesResponse response = sheets.spreadsheets().values().batchGet(spreadsheet).setRanges(cells).execute();
             Iterator<ValueRange> values = response.getValueRanges().iterator();
             return definition.convertValue(values);
+        } catch (IOException e) {
+            throw new SheetsRetrieveException("Cannot connect to sheets API", e);
+        }
+    }
+
+    @Override
+    public <T> List<T> bulkRetrieve(List<CellDefinition<T>> definitions) {
+        List<String> cells = definitions.stream()
+                .flatMap(definition -> definition.resolveCell(Point.ZERO).stream())
+                .collect(Collectors.toList());
+        try {
+            BatchGetValuesResponse response = sheets.spreadsheets().values().batchGet(spreadsheet).setRanges(cells).execute();
+            Iterator<ValueRange> values = response.getValueRanges().iterator();
+            return definitions.stream()
+                    .map(definition -> definition.convertValue(values))
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new SheetsRetrieveException("Cannot connect to sheets API", e);
         }

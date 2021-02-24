@@ -18,7 +18,7 @@ class ArrayCellDefinitionTest {
 
     private static final CellDefinition<Integer> SUB_DEFINITION = new IdentityCellDefinition<>();
     private static final ArrayCellDefinition<Integer, List<Integer>> DEFINITION =
-            new ArrayCellDefinition<>(SUB_DEFINITION, SUB_DEFINITION, 5, SCROLL_ONE_ROW, Collectors.toList());
+            new ArrayCellDefinition<>(SUB_DEFINITION, 5, SCROLL_ONE_ROW, Collectors.toList());
 
     @Test
     public void resolveCellWorksCorrectly() {
