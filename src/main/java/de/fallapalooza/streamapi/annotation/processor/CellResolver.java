@@ -17,7 +17,7 @@ public interface CellResolver {
      * @return A CellResolver which returns relative to sheet name
      */
     static CellResolver identity(String sheet) {
-        return (origin) -> Collections.singletonList(origin.toExcelWithSheet(sheet));
+        return (origin) -> Collections.singletonList(sheet == null ? origin.toExcel() : origin.toExcelWithSheet(sheet));
     }
 
     /**

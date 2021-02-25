@@ -3,6 +3,7 @@ package de.fallapalooza.streamapi.annotation.processor;
 import de.fallapalooza.streamapi.annotation.Cell;
 import de.fallapalooza.streamapi.annotation.Generator;
 import de.fallapalooza.streamapi.annotation.Nested;
+import de.fallapalooza.streamapi.annotation.Sheet;
 import de.fallapalooza.streamapi.annotation.function.IndexToOriginGenerator;
 import de.fallapalooza.streamapi.annotation.function.SimpleOriginGenerator;
 import de.fallapalooza.streamapi.annotation.model.Point;
@@ -54,7 +55,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 if(isPrimitive(field.getType())) {
                     // Single primitive object
                     Point origin = new Point(annotation.row(), annotation.col());
-                    CellResolver cellAnnotationCellResolver = new SingleCellResolver(origin, getSheetName(annotation.sheet()));
+                    CellResolver cellAnnotationCellResolver = new SingleCellResolver(origin, getSheetName(field.getDeclaringClass(), annotation.sheet()));
                     ObjectResolver<?> cellAnnotationObjectResolver = getSingleCellResolverForType(field.getType());
 
                     CellDefinition<?> cellDefinition = new SingleCellDefinition<>(cellAnnotationCellResolver, cellAnnotationObjectResolver);
@@ -70,7 +71,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 if(isPrimitive(annotation.type())) {
                     CellDefinition<?> definition = new ArrayCellDefinition<>(
                             new SingleCellDefinition<>(
-                                    CellResolver.identity(getSheetName(annotation.sheet())),
+                                    CellResolver.identity(getSheetName(field.getDeclaringClass(), annotation.sheet())),
                                     getSingleCellResolverForType(field.getType())),
                             annotation.length(), generator, getCollectorForOutput(field.getType()));
                     definitions.put(field.getName(), definition);
@@ -90,8 +91,18 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
             throw new IllegalArgumentException("Cannot collect to list of type " + type.getCanonicalName());
         }
 
-        private String getSheetName(String sheet) {
-            return sheet.isEmpty() ? null : sheet;
+        private String getSheetName(Class<?> clazz, String sheet) {
+            if(sheet.isEmpty()) {
+                if(clazz.isAnnotationPresent(Sheet.class)) {
+                    String classLevelSheet = clazz.getAnnotation(Sheet.class).value();
+                    if(!classLevelSheet.isEmpty()) {
+                        return classLevelSheet;
+                    }
+                }
+                return null;
+            } else {
+                return sheet;
+            }
         }
 
         private boolean isPrimitive(Class<?> type) {
