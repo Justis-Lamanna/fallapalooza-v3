@@ -2,7 +2,10 @@ package de.fallapalooza.streamapi.annotation.retrieve;
 
 import de.fallapalooza.streamapi.annotation.model.Point;
 import de.fallapalooza.streamapi.annotation.processor.CellDefinition;
+import org.javatuples.Pair;
+import org.javatuples.Tuple;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +43,37 @@ public interface RetrieveService {
                 .map(path -> path.resolve(root))
                 .collect(Collectors.toList());
         return bulkRetrieve(newDefinitions);
+    }
+
+    default <T, A, B> Pair<A, B> bulkRetrieve(CellDefinition<T> root, Path<T, A> one, Path<T, B> two) {
+        List<CellDefinition<?>> definitions = Arrays.asList(
+                one.resolve(root),
+                two.resolve(root)
+        );
+        List<?> objs = bulkRetrieveGeneric(definitions);
+        return Pair.with((A)objs.get(0), (B)objs.get(1));
+    }
+
+    /**
+     * Return multiple objects, with a common root and multiple paths
+     * @param definitions The definitions to retrieve
+     * @param <T> The root type
+     * @return The retrieved path resolutions
+     */
+    <T> List<Object> bulkRetrieveGeneric(List<CellDefinition<?>> definitions);
+
+    /**
+     * Return multiple objects, with a common root and multiple paths
+     * @param root The root to retrieve
+     * @param paths The paths to retrieve
+     * @param <T> The root type
+     * @return The retrieved path resolutions
+     */
+    default <T> List<Object> bulkRetrieveGeneric(CellDefinition<T> root, List<Path<T, ?>> paths) {
+        List<CellDefinition<?>> newDefinitions = paths.stream()
+                .map(path -> path.resolve(root))
+                .collect(Collectors.toList());
+        return bulkRetrieveGeneric(newDefinitions);
     }
 
     /**

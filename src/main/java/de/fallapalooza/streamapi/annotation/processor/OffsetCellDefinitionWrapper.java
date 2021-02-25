@@ -17,7 +17,7 @@ public class OffsetCellDefinitionWrapper<T> implements CellDefinition<T> {
 
     @Override
     public CellDefinition<?> getDefinitionForField(String name) {
-        return wrapped.getDefinitionForField(name);
+        return new OffsetCellDefinitionWrapper<>(wrapped.getDefinitionForField(name), offset);
     }
 
     @Override

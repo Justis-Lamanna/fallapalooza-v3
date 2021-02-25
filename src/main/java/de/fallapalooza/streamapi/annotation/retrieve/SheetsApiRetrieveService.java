@@ -50,4 +50,20 @@ public class SheetsApiRetrieveService implements RetrieveService {
             throw new SheetsRetrieveException("Cannot connect to sheets API", e);
         }
     }
+
+    @Override
+    public <T> List<Object> bulkRetrieveGeneric(List<CellDefinition<?>> definitions) {
+        List<String> cells = definitions.stream()
+                .flatMap(definition -> definition.resolveCell(Point.ZERO).stream())
+                .collect(Collectors.toList());
+        try {
+            BatchGetValuesResponse response = sheets.spreadsheets().values().batchGet(spreadsheet).setRanges(cells).execute();
+            Iterator<ValueRange> values = response.getValueRanges().iterator();
+            return definitions.stream()
+                    .map(definition -> definition.convertValue(values))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new SheetsRetrieveException("Cannot connect to sheets API", e);
+        }
+    }
 }

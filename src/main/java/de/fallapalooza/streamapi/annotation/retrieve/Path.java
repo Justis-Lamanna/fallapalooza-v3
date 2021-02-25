@@ -40,14 +40,35 @@ public class Path<TO, FROM> {
     }
 
     /**
+     * Easily turn this into a wildcard expression
+     * @return
+     */
+    public Path<List<TO>, List<FROM>> wildcard() {
+        return new Path<>(new ArrayList<>(paths));
+    }
+
+    /**
      * Relative to this path, retrieve the next field down
      * @param next The next field
      * @param <NEWFROM> The type of the next field
      * @return A new path, composed of this path and the next string
      */
-    public <NEWFROM> Path<TO, NEWFROM> then(String next) {
+    public <NEWFROM> Path<TO, NEWFROM> then(String next, String... more) {
         List<String> pathCopy = new ArrayList<>(this.paths);
         pathCopy.add(next);
+        pathCopy.addAll(Arrays.asList(more));
+        return new Path<>(pathCopy);
+    }
+
+    /**
+     * Relative to this path, retrieve the next field down
+     * @param concatPath The next path
+     * @param <NEWFROM> The type of the next field
+     * @return A new path, composed of this path and the next string
+     */
+    public <NEWFROM> Path<TO, NEWFROM> then(Path<FROM, NEWFROM> concatPath) {
+        List<String> pathCopy = new ArrayList<>(this.paths);
+        pathCopy.addAll(concatPath.paths);
         return new Path<>(pathCopy);
     }
 
