@@ -63,7 +63,8 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                 } else {
                     // One single complex object, which needs further parsing
                     CellDefinition<?> subDefinition = compile(field.getType());
-                    definitions.put(field.getName(), subDefinition);
+                    Point origin = new Point(annotation.row(), annotation.col());
+                    definitions.put(field.getName(), new OffsetCellDefinitionWrapper<>(subDefinition, origin));
                 }
             } else if(field.isAnnotationPresent(Nested.class)) {
                 Nested annotation = field.getAnnotation(Nested.class);
