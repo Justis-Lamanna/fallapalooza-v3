@@ -7,6 +7,7 @@ import org.javatuples.Tuple;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -112,5 +113,26 @@ public interface RetrieveService {
     default <START, END> END retrieve(CellDefinition<START> definition, Path<START, END> path, Point origin) {
         CellDefinition<END> resolved = path.resolve(definition);
         return retrieve(resolved, origin);
+    }
+
+    /**
+     * Perform a query: if a field matches a predicate, return another field
+     * @param definition The Cell Definition
+     * @param fieldToQuery A path to the field to query
+     * @param predicate A predicate to test the value of the fieldToQuery
+     * @param fieldToReturn A path to the field to return
+     * @param <T> The root type
+     * @param <F1> The type of the queried field
+     * @param <F2> The type of the returned field
+     * @return The returned field, or null
+     */
+    default <T, F1, F2> F2 query(CellDefinition<T> definition, Path<T, List<F1>> fieldToQuery, Predicate<F1> predicate, Path<T, List<F2>> fieldToReturn) {
+        Pair<List<F1>, List<F2>> retrieved = bulkRetrieve(definition, fieldToQuery, fieldToReturn);
+        for(int idx = 0; idx < retrieved.getValue0().size(); idx++) {
+            if(predicate.test(retrieved.getValue0().get(idx))) {
+                return retrieved.getValue1().get(idx);
+            }
+        }
+        return null;
     }
 }

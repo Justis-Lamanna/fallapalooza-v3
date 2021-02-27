@@ -73,7 +73,7 @@ public class AnnotationBasedCellDefinitionCompiler implements CellDefinitionComp
                     CellDefinition<?> definition = new ArrayCellDefinition<>(
                             new SingleCellDefinition<>(
                                     CellResolver.identity(getSheetName(field.getDeclaringClass(), annotation.sheet())),
-                                    getSingleCellResolverForType(field.getType())),
+                                    getSingleCellResolverForType(annotation.type())),
                             annotation.length(), generator, getCollectorForOutput(field.getType()));
                     definitions.put(field.getName(), definition);
                 } else {

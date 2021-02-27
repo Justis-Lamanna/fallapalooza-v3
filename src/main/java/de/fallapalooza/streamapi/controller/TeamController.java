@@ -1,23 +1,17 @@
 package de.fallapalooza.streamapi.controller;
 
-import de.fallapalooza.streamapi.annotation.processor.CellDefinition;
 import de.fallapalooza.streamapi.annotation.retrieve.Path;
-import de.fallapalooza.streamapi.annotation.retrieve.RetrieveService;
 import de.fallapalooza.streamapi.model.Player;
 import de.fallapalooza.streamapi.model.Round;
 import de.fallapalooza.streamapi.model.Team;
 import de.fallapalooza.streamapi.model.Teams;
-import de.fallapalooza.streamapi.service.DisplayService;
+import de.fallapalooza.streamapi.service.TeamsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/team")
 public class TeamController {
     private static final Path<Teams, List<Team>> TEAMS = Path.fromFields("teams");
@@ -26,113 +20,65 @@ public class TeamController {
     private static final Path<Team, List<Round>> ROUNDS = Path.fromFields("rounds");
 
     @Autowired
-    private CellDefinition<Teams> definition;
+    private TeamsService teamsService;
 
-    @Autowired
-    private RetrieveService retrieveService;
-
-    @Autowired
-    private DisplayService displayService;
-
-    @GetMapping("/{number}/name")
-    public String getTeamName(@PathVariable int number, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "name"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/{teamNum}/name")
+    public String getNameByTeamNumber(@PathVariable int teamNum) {
+        return teamsService.getTeamName(teamNum);
     }
 
-    @GetMapping("/{number}/player/{playerNumber}/name")
-    public String getPlayerName(@PathVariable int number, @PathVariable int playerNumber, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "players", Integer.toString(playerNumber), "name"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/name")
+    public String getNameByDisplayNumber(@PathVariable int displayNum) {
+        return teamsService.getTeamNameByDisplay(displayNum);
     }
 
-    @GetMapping("/{number}/player/{playerNumber}/pronouns")
-    public String getPlayerNamePronouns(@PathVariable int number, @PathVariable int playerNumber, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "players", Integer.toString(playerNumber), "nameWithPronouns"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/{teamNum}/player/{playerNum}/name")
+    public String getPlayerNameByTeamAndPlayerNumber(@PathVariable int teamNum, @PathVariable int playerNum, @RequestParam(defaultValue = "false") boolean pronouns) {
+        return teamsService.getPlayerName(teamNum, playerNum, pronouns);
     }
 
-    @GetMapping("/{number}/round/{roundNumber}/name")
-    public String getRoundName(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "rounds", Integer.toString(roundNumber), "name"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/player/{playerNum}/name")
+    public String getPlayerNameByDisplayAndPlayerNumber(@PathVariable int displayNum, @PathVariable int playerNum, @RequestParam(defaultValue = "false") boolean pronouns) {
+        return teamsService.getPlayerNameByDisplay(displayNum, playerNum, pronouns);
     }
 
-    @GetMapping("/{number}/round/{roundNumber}/total")
-    public String getRoundTotal(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        int total = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "rounds", Integer.toString(roundNumber), "total"));
-        if(total != 0) {
-            model.addAttribute("value", total);
-        }
-        return "value";
+    @GetMapping("/{teamNum}/round/{roundNum}/player/{playerNum}/episode/{episodeNum}")
+    public Integer getScoreByTeamAndRoundAndPlayerAndEpisodeNumber(@PathVariable int teamNum, @PathVariable int roundNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
+        return teamsService.getScoreByRoundAndPlayerAndEpisode(teamNum, roundNum, playerNum, episodeNum);
     }
 
-    @GetMapping("/{number}/round/{roundNumber}/episode")
-    public String getEpisodeName(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "rounds", Integer.toString(roundNumber), "episode"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/round/{roundNum}/player/{playerNum}/episode/{episodeNum}")
+    public Integer getScoreByDisplayNumAndRoundAndPlayerAndEpisodeNumber(@PathVariable int displayNum, @PathVariable int roundNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
+        return teamsService.getScoreByDisplayAndRoundAndPlayerAndEpisode(displayNum, roundNum, playerNum, episodeNum);
     }
 
-    @GetMapping("/{number}/round/{roundNumber}/episode/{episodeNumber}/player/{playerNumber}/score")
-    public String getEpisodeName(@PathVariable int number, @PathVariable int roundNumber, @PathVariable int episodeNumber, @PathVariable int playernumber, Model model) {
-        String name = retrieveService.retrieve(definition, Path.fromFields("teams", Integer.toString(number), "rounds", Integer.toString(roundNumber), "scores", Integer.toString(episodeNumber), "scores", Integer.toString(playernumber)));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/{teamNum}/round/{roundNum}/total")
+    public Integer getTotalByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
+        return teamsService.getTotalByRound(teamNum, roundNum);
     }
 
-    @GetMapping("/display/{number}/name")
-    public String getTeamNameByDisplay(@PathVariable int number, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, TEAM_NAME);
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/round/{roundNum}/total")
+    public Integer getTotalByDisplayAndRound(@PathVariable int displayNum, @PathVariable int roundNum) {
+        return teamsService.getTotalByDisplayAndRound(displayNum, roundNum);
     }
 
-    @GetMapping("/display/{number}/player/{playerNumber}/name")
-    public String getPlayerNameByDisplay(@PathVariable int number, @PathVariable int playerNumber, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, PLAYERS.then(Integer.toString(playerNumber), "name"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/{teamNum}/round/{roundNum}/total")
+    public String getNameByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
+        return teamsService.getNameByRound(teamNum, roundNum);
     }
 
-    @GetMapping("/display/{number}/player/{playerNumber}/pronouns")
-    public String getPlayerNamePronounsByDisplay(@PathVariable int number, @PathVariable int playerNumber, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, PLAYERS.then(Integer.toString(playerNumber), "nameWithPronouns"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/round/{roundNum}/name")
+    public String getNameByDisplayAndRound(@PathVariable int displayNum, @PathVariable int roundNum) {
+        return teamsService.getNameByDisplayAndRound(displayNum, roundNum);
     }
 
-    @GetMapping("/display/{number}/round/{roundNumber}/name")
-    public String getRoundNameByDisplay(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, ROUNDS.then(Integer.toString(roundNumber), "name"));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/{teamNum}/round/{roundNum}/episode")
+    public String getEpisodeByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
+        return teamsService.getEpisodeByRound(teamNum, roundNum);
     }
 
-    @GetMapping("/display/{number}/round/{roundNumber}/total")
-    public String getRoundTotalByDisplay(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        int total = displayService.getValueForDisplayNumber(number, ROUNDS.then(Integer.toString(roundNumber), "total"));
-        if(total != 0) {
-            model.addAttribute("value", total);
-        }
-        return "value";
-    }
-
-    @GetMapping("/display/{number}/round/{roundNumber}/episode")
-    public String getEpisodeNameByDisplay(@PathVariable int number, @PathVariable int roundNumber, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, ROUNDS.then(Integer.toString(roundNumber), "episode"));
-        model.addAttribute("value", name);
-        return "value";
-    }
-
-    @GetMapping("/display/{number}/round/{roundNumber}/episode/{episodeNumber}/player/{playerNumber}/score")
-    public String getEpisodeNameByDisplay(@PathVariable int number, @PathVariable int roundNumber, @PathVariable int episodeNumber, @PathVariable int playernumber, Model model) {
-        String name = displayService.getValueForDisplayNumber(number, ROUNDS.then(Integer.toString(roundNumber), "scores", Integer.toString(episodeNumber), "scores", Integer.toString(playernumber)));
-        model.addAttribute("value", name);
-        return "value";
+    @GetMapping("/display/{displayNum}/round/{roundNum}/episode")
+    public String getEpisodeByDisplayAndRound(@PathVariable int displayNum, @PathVariable int roundNum) {
+        return teamsService.getEpisodeByDisplayAndRound(displayNum, roundNum);
     }
 }

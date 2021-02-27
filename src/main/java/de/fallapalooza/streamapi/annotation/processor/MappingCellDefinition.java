@@ -6,6 +6,7 @@ import de.fallapalooza.streamapi.annotation.model.Point;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class MappingCellDefinition<T, C> implements CellDefinition<C> {
 
     @Override
     public CellDefinition<?> getDefinitionForField(String name) {
-        return subResolver.getDefinitionForField(name);
+        return new MappingCellDefinition<>(subResolver.getDefinitionForField(name), size, generator, Collectors.toList());
     }
 
     @Override
