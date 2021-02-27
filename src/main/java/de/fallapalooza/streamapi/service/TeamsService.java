@@ -3,6 +3,7 @@ package de.fallapalooza.streamapi.service;
 import de.fallapalooza.streamapi.annotation.processor.CellDefinition;
 import de.fallapalooza.streamapi.annotation.retrieve.Path;
 import de.fallapalooza.streamapi.annotation.retrieve.RetrieveService;
+import de.fallapalooza.streamapi.model.Round;
 import de.fallapalooza.streamapi.model.Team;
 import de.fallapalooza.streamapi.model.Teams;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,33 +40,77 @@ public class TeamsService {
                 Path.fromFields("teams", String.valueOf(teamNumber), "rounds", String.valueOf(roundNumber), "scores", String.valueOf(playerNum), "scores", String.valueOf(episodeNum)));
     }
 
+    public Integer getScoreByCurrentRoundAndPlayerAndEpisode(int teamNumber, int playerNum, int episodeNum) {
+        List<Round> rounds = retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds"));
+        return findCurrentRound(rounds).getScores().get(playerNum).getScores().get(episodeNum);
+    }
+
     public Integer getScoreByDisplayAndRoundAndPlayerAndEpisode(int displayNum, int roundNumber, int playerNum, int episodeNum) {
         return getFieldByDisplay(displayNum,
                 Path.fromFields("rounds", String.valueOf(roundNumber), "scores", String.valueOf(playerNum), "scores", String.valueOf(episodeNum)));
+    }
+
+    public Integer getScoreByDisplayAndCurrentRoundAndPlayerAndEpisode(int displayNum, int playerNum, int episodeNum) {
+        List<Round> rounds = getFieldByDisplay(displayNum,
+                Path.fromFields("rounds"));
+        return findCurrentRound(rounds).getScores().get(playerNum).getScores().get(episodeNum);
     }
 
     public Integer getTotalByRound(int teamNumber, int roundNumber) {
         return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds", String.valueOf(roundNumber), "total"));
     }
 
+    public Integer getTotalByCurrentRound(int teamNumber) {
+        List<Round> rounds = retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds"));
+        return findCurrentRound(rounds).getTotal();
+    }
+
     public Integer getTotalByDisplayAndRound(int displayNum, int roundNumber) {
         return getFieldByDisplay(displayNum, Path.fromFields("rounds", String.valueOf(roundNumber), "total"));
+    }
+
+    public Integer getTotalByDisplayAndCurrentRound(int displayNum) {
+        List<Round> rounds = getFieldByDisplay(displayNum,
+                Path.fromFields("rounds"));
+        return findCurrentRound(rounds).getTotal();
     }
 
     public String getNameByRound(int teamNumber, int roundNumber) {
         return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds", String.valueOf(roundNumber), "name"));
     }
 
+    public String getNameByCurrentRound(int teamNumber) {
+        List<Round> rounds = retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds"));
+        return findCurrentRound(rounds).getName();
+    }
+
     public String getNameByDisplayAndRound(int displayNum, int roundNumber) {
         return getFieldByDisplay(displayNum, Path.fromFields("rounds", String.valueOf(roundNumber), "name"));
+    }
+
+    public String getNameByDisplayAndCurrentRound(int displayNum) {
+        List<Round> rounds = getFieldByDisplay(displayNum,
+                Path.fromFields("rounds"));
+        return findCurrentRound(rounds).getName();
     }
 
     public String getEpisodeByRound(int teamNumber, int roundNumber) {
         return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds", String.valueOf(roundNumber), "episode"));
     }
 
+    public String getEpisodeByCurrentRound(int teamNumber) {
+        List<Round> rounds = retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds"));
+        return findCurrentRound(rounds).getEpisode();
+    }
+
     public String getEpisodeByDisplayAndRound(int displayNum, int roundNumber) {
         return getFieldByDisplay(displayNum, Path.fromFields("rounds", String.valueOf(roundNumber), "episode"));
+    }
+
+    public String getEpisodeByDisplayAndCurrentRound(int displayNum) {
+        List<Round> rounds = getFieldByDisplay(displayNum,
+                Path.fromFields("rounds"));
+        return findCurrentRound(rounds).getEpisode();
     }
 
     private <T> T getFieldByDisplay(int displayNumber, Path<Team, T> path) {
@@ -73,5 +118,23 @@ public class TeamsService {
                 Path.<Teams, List<Integer>>fromFields("teams", "*", "display"),
                 display -> display != null && display == displayNumber,
                 Path.<Teams, List<Team>>fromFields("teams", "*").then(path.wildcard()));
+    }
+
+    private Round findCurrentRound(List<Round> rounds) {
+        for(int rNum = 0; rNum < rounds.size(); rNum++) {
+            Round round = rounds.get(rNum);
+            if(round.isPartial()) {
+                return round;
+            }
+
+            if(round.isEmpty()) {
+                if(rNum == 0) {
+                    return round;
+                } else {
+                    return rounds.get(rNum - 1);
+                }
+            }
+        }
+        return rounds.get(0);
     }
 }

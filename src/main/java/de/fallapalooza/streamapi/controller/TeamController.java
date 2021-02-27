@@ -47,9 +47,19 @@ public class TeamController {
         return teamsService.getScoreByRoundAndPlayerAndEpisode(teamNum, roundNum, playerNum, episodeNum);
     }
 
+    @GetMapping("/{teamNum}/round/current/player/{playerNum}/episode/{episodeNum}")
+    public Integer getScoreByTeamAndCurrentRoundAndPlayerAndEpisodeNumber(@PathVariable int teamNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
+        return teamsService.getScoreByCurrentRoundAndPlayerAndEpisode(teamNum, playerNum, episodeNum);
+    }
+
     @GetMapping("/display/{displayNum}/round/{roundNum}/player/{playerNum}/episode/{episodeNum}")
     public Integer getScoreByDisplayNumAndRoundAndPlayerAndEpisodeNumber(@PathVariable int displayNum, @PathVariable int roundNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
         return teamsService.getScoreByDisplayAndRoundAndPlayerAndEpisode(displayNum, roundNum, playerNum, episodeNum);
+    }
+
+    @GetMapping("/display/{displayNum}/round/current/player/{playerNum}/episode/{episodeNum}")
+    public Integer getScoreByDisplayNumAndCurrentRoundAndPlayerAndEpisodeNumber(@PathVariable int displayNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
+        return teamsService.getScoreByDisplayAndCurrentRoundAndPlayerAndEpisode(displayNum, playerNum, episodeNum);
     }
 
     @GetMapping("/{teamNum}/round/{roundNum}/total")
@@ -57,14 +67,29 @@ public class TeamController {
         return teamsService.getTotalByRound(teamNum, roundNum);
     }
 
+    @GetMapping("/{teamNum}/round/current/total")
+    public Integer getTotalByTeamAndRound(@PathVariable int teamNum) {
+        return teamsService.getTotalByCurrentRound(teamNum);
+    }
+
     @GetMapping("/display/{displayNum}/round/{roundNum}/total")
     public Integer getTotalByDisplayAndRound(@PathVariable int displayNum, @PathVariable int roundNum) {
         return teamsService.getTotalByDisplayAndRound(displayNum, roundNum);
     }
 
-    @GetMapping("/{teamNum}/round/{roundNum}/total")
+    @GetMapping("/display/{displayNum}/round/current/total")
+    public Integer getTotalByDisplayAndCurrentRound(@PathVariable int displayNum) {
+        return teamsService.getTotalByDisplayAndCurrentRound(displayNum);
+    }
+
+    @GetMapping("/{teamNum}/round/{roundNum}/name")
     public String getNameByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
         return teamsService.getNameByRound(teamNum, roundNum);
+    }
+
+    @GetMapping("/{teamNum}/round/current/name")
+    public String getNameByTeamAndCurrentRound(@PathVariable int teamNum) {
+        return teamsService.getNameByCurrentRound(teamNum);
     }
 
     @GetMapping("/display/{displayNum}/round/{roundNum}/name")
@@ -72,13 +97,23 @@ public class TeamController {
         return teamsService.getNameByDisplayAndRound(displayNum, roundNum);
     }
 
+    @GetMapping("/display/{displayNum}/round/current/name")
+    public String getNameByDisplayAndRound(@PathVariable int displayNum) {
+        return teamsService.getNameByDisplayAndCurrentRound(displayNum);
+    }
+
     @GetMapping("/{teamNum}/round/{roundNum}/episode")
     public String getEpisodeByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
         return teamsService.getEpisodeByRound(teamNum, roundNum);
     }
 
+    @GetMapping("/{teamNum}/round/current/episode")
+    public String getEpisodeByTeamAndCurrentRound(@PathVariable int teamNum) {
+        return teamsService.getEpisodeByCurrentRound(teamNum);
+    }
+
     @GetMapping("/display/{displayNum}/round/{roundNum}/episode")
-    public String getEpisodeByDisplayAndRound(@PathVariable int displayNum, @PathVariable int roundNum) {
-        return teamsService.getEpisodeByDisplayAndRound(displayNum, roundNum);
+    public String getEpisodeByDisplayAndCurrentRound(@PathVariable int displayNum) {
+        return teamsService.getEpisodeByDisplayAndCurrentRound(displayNum);
     }
 }
