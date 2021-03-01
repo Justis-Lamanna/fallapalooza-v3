@@ -52,6 +52,26 @@ public class TeamController {
         return teamsService.getScoreByCurrentRoundAndPlayerAndEpisode(teamNum, playerNum, episodeNum);
     }
 
+    @GetMapping("/{teamNum}/round/{roundNum}/player/{playerNum}/scores")
+    public List<Integer> getScoresByTeamAndRoundAndPlayerNumber(@PathVariable int teamNum, @PathVariable int roundNum, @PathVariable int playerNum) {
+        return teamsService.getScoresByRoundAndPlayer(teamNum, roundNum, playerNum);
+    }
+
+    @GetMapping("/{teamNum}/round/current/player/{playerNum}/scores")
+    public List<Integer> getScoresByTeamAndCurrentRoundAndPlayerNumber(@PathVariable int teamNum, @PathVariable int playerNum) {
+        return teamsService.getScoresByCurrentRoundAndPlayer(teamNum, playerNum);
+    }
+
+    @GetMapping("/{teamNum}/round/{roundNum}/scores")
+    public List<List<Integer>> getScoresByTeamAndRound(@PathVariable int teamNum, @PathVariable int roundNum) {
+        return teamsService.getScoresByRound(teamNum, roundNum);
+    }
+
+    @GetMapping("/{teamNum}/round/current/scores")
+    public List<List<Integer>> getScoresByTeamAndCurrentRound(@PathVariable int teamNum) {
+        return teamsService.getScoresByCurrentRound(teamNum);
+    }
+
     @GetMapping("/display/{displayNum}/round/{roundNum}/player/{playerNum}/episode/{episodeNum}")
     public Integer getScoreByDisplayNumAndRoundAndPlayerAndEpisodeNumber(@PathVariable int displayNum, @PathVariable int roundNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
         return teamsService.getScoreByDisplayAndRoundAndPlayerAndEpisode(displayNum, roundNum, playerNum, episodeNum);
@@ -60,6 +80,16 @@ public class TeamController {
     @GetMapping("/display/{displayNum}/round/current/player/{playerNum}/episode/{episodeNum}")
     public Integer getScoreByDisplayNumAndCurrentRoundAndPlayerAndEpisodeNumber(@PathVariable int displayNum, @PathVariable int playerNum, @PathVariable int episodeNum) {
         return teamsService.getScoreByDisplayAndCurrentRoundAndPlayerAndEpisode(displayNum, playerNum, episodeNum);
+    }
+
+    @GetMapping("/display/{displayNum}/round/{roundNum}/player/{playerNum}/scores")
+    public List<Integer> getScoresByDisplayNumAndRoundAndPlayerNumber(@PathVariable int displayNum, @PathVariable int roundNum, @PathVariable int playerNum) {
+        return teamsService.getScoresByDisplayAndRoundAndPlayer(displayNum, roundNum, playerNum);
+    }
+
+    @GetMapping("/display/{displayNum}/round/current/player/{playerNum}/scores")
+    public List<Integer> getScoresByDisplayNumAndCurrentRoundAndPlayerNumber(@PathVariable int displayNum, @PathVariable int playerNum) {
+        return teamsService.getScoresByDisplayAndCurrentRoundAndPlayer(displayNum, playerNum);
     }
 
     @GetMapping("/{teamNum}/round/{roundNum}/total")
