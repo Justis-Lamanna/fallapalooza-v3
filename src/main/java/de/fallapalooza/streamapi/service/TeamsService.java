@@ -20,6 +20,14 @@ public class TeamsService {
     @Autowired
     private RetrieveService retrieveService;
 
+    public Team getTeam(int teamNumber) {
+        return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber)));
+    }
+
+    public Team getTeamByDisplay(int displayNumber) {
+        return getFieldByDisplay(displayNumber, Path.root());
+    }
+
     public String getTeamName(int teamNumber) {
         return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "name"));
     }
@@ -34,6 +42,16 @@ public class TeamsService {
 
     public String getPlayerNameByDisplay(int displayNumber, int playerNum, boolean pronouns) {
         return getFieldByDisplay(displayNumber, Path.fromFields("players", String.valueOf(playerNum), pronouns ? "nameWithPronouns" : "name"));
+    }
+
+    public Round getCurrentRound(int teamNumber) {
+        List<Round> rounds = retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(teamNumber), "rounds"));
+        return findCurrentRound(rounds);
+    }
+
+    public Round getCurrentRoundByDisplayNumber(int displayNum) {
+        List<Round> rounds = getFieldByDisplay(displayNum, Path.fromFields("rounds"));
+        return findCurrentRound(rounds);
     }
 
     public Integer getScoreByRoundAndPlayerAndEpisode(int teamNumber, int roundNumber, int playerNum, int episodeNum) {
