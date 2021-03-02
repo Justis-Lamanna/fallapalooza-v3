@@ -8,6 +8,7 @@ import de.fallapalooza.streamapi.model.Teams;
 import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,11 +43,11 @@ public class DisplayService {
     }
 
     public <T, F1, F2> F2 query(CellDefinition<T> definition, Path<T, List<F1>> fieldToQuery, Predicate<F1> predicate, Path<T, List<F2>> fieldToReturn) {
-        Pair<List<F1>, List<F2>> retrieved =
+        Tuple2<List<F1>, List<F2>> retrieved =
                 retrieveService.bulkRetrieve(definition, fieldToQuery, fieldToReturn);
-        for(int idx = 0; idx < retrieved.getValue0().size(); idx++) {
-            if(predicate.test(retrieved.getValue0().get(idx))) {
-                return retrieved.getValue1().get(idx);
+        for(int idx = 0; idx < retrieved.getT1().size(); idx++) {
+            if(predicate.test(retrieved.getT1().get(idx))) {
+                return retrieved.getT2().get(idx);
             }
         }
         return null;

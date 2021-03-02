@@ -2,8 +2,8 @@ package de.fallapalooza.streamapi.annotation.retrieve;
 
 import de.fallapalooza.streamapi.annotation.model.Point;
 import de.fallapalooza.streamapi.annotation.processor.CellDefinition;
-import org.javatuples.Pair;
-import org.javatuples.Tuple;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,13 +46,13 @@ public interface RetrieveService {
         return bulkRetrieve(newDefinitions);
     }
 
-    default <T, A, B> Pair<A, B> bulkRetrieve(CellDefinition<T> root, Path<T, A> one, Path<T, B> two) {
+    default <T, A, B> Tuple2<A, B> bulkRetrieve(CellDefinition<T> root, Path<T, A> one, Path<T, B> two) {
         List<CellDefinition<?>> definitions = Arrays.asList(
                 one.resolve(root),
                 two.resolve(root)
         );
         List<?> objs = bulkRetrieveGeneric(definitions);
-        return Pair.with((A)objs.get(0), (B)objs.get(1));
+        return Tuples.of((A)objs.get(0), (B)objs.get(1));
     }
 
     /**
@@ -127,10 +127,10 @@ public interface RetrieveService {
      * @return The returned field, or null
      */
     default <T, F1, F2> F2 query(CellDefinition<T> definition, Path<T, List<F1>> fieldToQuery, Predicate<F1> predicate, Path<T, List<F2>> fieldToReturn) {
-        Pair<List<F1>, List<F2>> retrieved = bulkRetrieve(definition, fieldToQuery, fieldToReturn);
-        for(int idx = 0; idx < retrieved.getValue0().size(); idx++) {
-            if(predicate.test(retrieved.getValue0().get(idx))) {
-                return retrieved.getValue1().get(idx);
+        Tuple2<List<F1>, List<F2>> retrieved = bulkRetrieve(definition, fieldToQuery, fieldToReturn);
+        for(int idx = 0; idx < retrieved.getT1().size(); idx++) {
+            if(predicate.test(retrieved.getT1().get(idx))) {
+                return retrieved.getT2().get(idx);
             }
         }
         return null;
