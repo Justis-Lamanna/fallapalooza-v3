@@ -25,7 +25,12 @@ public class TeamsService {
     }
 
     public Team getTeamByDisplay(int displayNumber) {
-        return getFieldByDisplay(displayNumber, Path.root());
+        List<Integer> displays = retrieveService.retrieve(definition, Path.fromFields("teams", "*", "display"));
+        int idxToGet = displays.indexOf(displayNumber);
+        if(idxToGet < 0) {
+            return null;
+        }
+        return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(idxToGet)));
     }
 
     public String getTeamName(int teamNumber) {
