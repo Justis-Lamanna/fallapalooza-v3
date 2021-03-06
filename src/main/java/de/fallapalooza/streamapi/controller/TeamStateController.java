@@ -15,26 +15,13 @@ public class TeamStateController {
     @Autowired
     private TeamsStateService service;
 
-    @GetMapping("/display/{displayNum}/name")
-    public Flux<ServerSentEvent<String>> getTeamName(@PathVariable int displayNum) {
+    @GetMapping("/display/{displayNum}")
+    public Flux<ServerSentEvent<Team>> getTeamName(@PathVariable int displayNum) {
         return service.getTeamForDisplay(displayNum)
-                .map(Team::getName)
-                .map(team -> ServerSentEvent.<String>builder()
-                        .id("display-" + displayNum + "-name")
+                .map(team -> ServerSentEvent.<Team>builder()
+                        .id("display-" + displayNum)
                         .event("team-event")
                         .data(team)
-                        .build());
-    }
-
-    @GetMapping("/display/{displayNum}/player/{playerNum}/name")
-    public Flux<ServerSentEvent<String>> getPlayerName(@PathVariable int displayNum, @PathVariable int playerNum,
-                                                       @RequestParam(defaultValue = "false") boolean pronouns) {
-        return service.getTeamForDisplay(displayNum)
-                .map(team -> team.getPlayers().get(playerNum))
-                .map(player -> ServerSentEvent.<String>builder()
-                        .id("display-" + displayNum + "-player-" + playerNum + "-name-" + pronouns)
-                        .event("team-event")
-                        .data(pronouns ? player.getNameWithPronouns() : player.getName())
                         .build());
     }
 
