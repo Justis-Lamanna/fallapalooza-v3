@@ -10,40 +10,115 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/stream/team")
+@RequestMapping("/stream/team/display/{displayNum}")
 public class TeamStateController {
     @Autowired
     private TeamsStateService service;
 
-    @GetMapping("/display/{displayNum}")
-    public Flux<ServerSentEvent<Team>> getTeamName(@PathVariable int displayNum) {
+    @GetMapping("/name")
+    public Flux<ServerSentEvent<String>> getTeamName(@PathVariable int displayNum) {
         return service.getTeamForDisplay(displayNum)
-                .map(team -> ServerSentEvent.<Team>builder()
-                        .id("display-" + displayNum)
+                .map(Team::getName)
+                .map(name -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-name", displayNum))
                         .event("team-event")
-                        .data(team)
+                        .data(name)
                         .build());
     }
 
-    @PostMapping("/display/{displayNum}")
+    @GetMapping("/player/{playerNum}/name")
+    public Flux<ServerSentEvent<String>> getPlayerName(@PathVariable int displayNum, @PathVariable int playerNum, @RequestParam(required = false) boolean pronouns) {
+        return service.getTeamForDisplay(displayNum)
+                .map(team -> team.getPlayers().get(playerNum))
+                .map(player -> pronouns ? player.getNameWithPronouns() : player.getName())
+                .map(name -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-player-%d-name-%s", displayNum, playerNum, pronouns))
+                        .event("team-event")
+                        .data(name)
+                        .build());
+    }
+
+    @GetMapping("/round/{roundNum}/player/{playerNum}/episode/{epNum}")
+    public Flux<ServerSentEvent<String>> getScore(@PathVariable int displayNum, @PathVariable int roundNum, @PathVariable int playerNum, @PathVariable int epNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(team -> team.getRounds().get(roundNum))
+                .map(round -> round.getScores().get(playerNum))
+                .map(scores -> scores.getScores().get(epNum))
+                .map(String::valueOf)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-%d-player-%d-episode-%d", displayNum, roundNum, playerNum, epNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @GetMapping("/round/current/player/{playerNum}/episode/{epNum}")
+    public Flux<ServerSentEvent<String>> getScore(@PathVariable int displayNum, @PathVariable int playerNum, @PathVariable int epNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(Team::getCurrentRound)
+                .map(round -> round.getScores().get(playerNum))
+                .map(scores -> scores.getScores().get(epNum))
+                .map(String::valueOf)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-current-player-%d-episode-%d", displayNum, playerNum, epNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @GetMapping("/round/{roundNum}/total")
+    public Flux<ServerSentEvent<String>> getTotal(@PathVariable int displayNum, @PathVariable int roundNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(team -> team.getRounds().get(roundNum))
+                .map(Round::getTotal)
+                .map(String::valueOf)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-%d-total", displayNum, roundNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @GetMapping("/round/current/total")
+    public Flux<ServerSentEvent<String>> getCurrentTotal(@PathVariable int displayNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(Team::getCurrentRound)
+                .map(Round::getTotal)
+                .map(String::valueOf)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-current-total", displayNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @GetMapping("/round/current/episode-badge")
+    public Flux<ServerSentEvent<String>> getCurrentEpisodeBadge(@PathVariable int displayNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(Team::getCurrentRound)
+                .map(Round::getEpisode)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-current-episode-badge", displayNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @GetMapping("/round/current/round-badge")
+    public Flux<ServerSentEvent<String>> getCurrentRoundBadge(@PathVariable int displayNum) {
+        return service.getTeamForDisplay(displayNum)
+                .map(Team::getCurrentRound)
+                .map(Round::getName)
+                .map(score -> ServerSentEvent.<String>builder()
+                        .id(String.format("display-%d-round-current-round-badge", displayNum))
+                        .event("team-event")
+                        .data(score)
+                        .build());
+    }
+
+    @PostMapping
     public ResponseEntity<Void> refreshTeam(@PathVariable int displayNum) {
         service.refreshTeamForDisplay(displayNum);
-        return ResponseEntity.accepted().build();
-    }
-
-    @GetMapping("/display/{displayNum}/round/current")
-    public Flux<ServerSentEvent<Round>> getRound(@PathVariable int displayNum) {
-        return service.getCurrentRoundForDisplay(displayNum)
-                .map(round -> ServerSentEvent.<Round>builder()
-                        .id("display-" + displayNum + "-current-round")
-                        .event("current-round-event")
-                        .data(round)
-                        .build());
-    }
-
-    @PostMapping("/display/{displayNum}/round/current")
-    public ResponseEntity<Void> refreshRound(@PathVariable int displayNum) {
-        service.refreshCurrentRoundForDisplay(displayNum);
         return ResponseEntity.accepted().build();
     }
 }

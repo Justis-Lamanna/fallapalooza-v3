@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="|${display} - ${field}|">Display for Fallapalooza</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*[+
+        const url = [[${#strings.replace(field.liveUrl, '{displayNum}', display)}]];
+        +]*/
+
+        $(document).ready(function(){
+            const source = new EventSource(url);
+
+            source.addEventListener('team-event', function(e) {
+                $('#value').text(e.data);
+            }, false);
+
+            source.addEventListener('error', function(e) {
+                source.close();
+            }, false);
+        });
+    </script>
+</head>
+<body>
+<div id="value" th:class="${field.classes}"></div>
+</body>
+</html>

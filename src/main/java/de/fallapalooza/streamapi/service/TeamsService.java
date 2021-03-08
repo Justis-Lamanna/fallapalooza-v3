@@ -9,6 +9,8 @@ import de.fallapalooza.streamapi.model.Teams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,18 @@ public class TeamsService {
             return null;
         }
         return retrieveService.retrieve(definition, Path.fromFields("teams", String.valueOf(idxToGet)));
+    }
+
+    public List<Team> getTeamsByDisplay(int... displayNumbers) {
+        List<Integer> displays = retrieveService.retrieve(definition, Path.fromFields("teams", "*", "display"));
+        List<Path<Teams, Team>> paths = Arrays.stream(displayNumbers)
+                .map(displays::indexOf)
+                .filter(i -> i >= 0)
+                .mapToObj(idxToGet -> Path.<Teams, Team>fromFields("teams", String.valueOf(idxToGet)))
+                .collect(Collectors.toList());
+        return paths.isEmpty() ?
+                Collections.emptyList() :
+                retrieveService.bulkRetrieve(definition, paths);
     }
 
     public String getTeamName(int teamNumber) {

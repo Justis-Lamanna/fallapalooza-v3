@@ -25,4 +25,22 @@ public class Team {
 
     @Nested(type = Round.class, length = 5, generator = @Generator(row = 2, col = 5, colOffset = 2))
     private List<Round> rounds;
+
+    public Round getCurrentRound() {
+        for(int rNum = 0; rNum < rounds.size(); rNum++) {
+            Round round = rounds.get(rNum);
+            if(round.isPartial()) {
+                return round;
+            }
+
+            if(round.isEmpty()) {
+                if(rNum == 0) {
+                    return round;
+                } else {
+                    return rounds.get(rNum - 1);
+                }
+            }
+        }
+        return rounds.get(rounds.size() - 1);
+    }
 }

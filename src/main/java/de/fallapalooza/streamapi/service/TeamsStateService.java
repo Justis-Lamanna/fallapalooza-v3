@@ -26,6 +26,7 @@ public class TeamsStateService {
 
     public void refreshTeamForDisplay(int displayNum) {
         setLazily(teamSinks, displayNum, () -> teamsService.getTeamByDisplay(displayNum));
+        refreshCurrentRoundForDisplay(displayNum);
     }
 
     public Flux<Round> getCurrentRoundForDisplay(int displayNum) {

@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="|${display_one} vs ${display_two}|">Display for Fallapalooza</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div th:each="team, iter : ${teams}" th:id="|team-${iter.index}|">
+    <h1 th:id="|team-${iter.index}-name|" th:class="|team-${iter.index}-name|" th:text="${team.name}"/>
+    <h2 th:id="|team-${iter.index}-player-${piter.index}-name|" class="player-${iter.index}-name" th:each="player,piter : ${team.players}" th:text="${player.name}"/>
+</div>
+<div th:unless="${#lists.size(teams) == 0}" th:object="${teams[0].currentRound}">
+    <p id="round-badge" th:text="*{name}"/>
+    <p id="episode-badge" th:text="*{episode}"/>
+</div>
+</body>
+</html>
