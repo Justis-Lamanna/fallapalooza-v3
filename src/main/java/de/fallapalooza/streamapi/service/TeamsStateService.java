@@ -9,6 +9,7 @@ import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 @Service
@@ -25,17 +26,17 @@ public class TeamsStateService {
     }
 
     public void refreshTeamForDisplay(int displayNum) {
-        setLazily(teamSinks, displayNum, () -> teamsService.getTeamByDisplay(displayNum));
-        refreshCurrentRoundForDisplay(displayNum);
+        refreshTeamForDisplay(displayNum, OptionalInt.empty());
     }
 
-    public Flux<Round> getCurrentRoundForDisplay(int displayNum) {
-        return getLazily(currentRoundsSinks, displayNum, () -> teamsService.getCurrentRoundByDisplayNumber(displayNum))
-                .asFlux();
-    }
-
-    public void refreshCurrentRoundForDisplay(int displayNum) {
-        setLazily(currentRoundsSinks, displayNum, () -> teamsService.getCurrentRoundByDisplayNumber(displayNum));
+    public void refreshTeamForDisplay(int displayNum, OptionalInt forcedRound) {
+        setLazily(teamSinks, displayNum, () -> {
+            Team team = teamsService.getTeamByDisplay(displayNum);
+            if(team != null) {
+                team.setForcedCurrentRound(forcedRound);
+            }
+            return team;
+        });
     }
 
     private <K, V> Sinks.Many<V> getLazily(Map<K, Sinks.Many<V>> map, K key, Supplier<V> firstIfNecessary) {

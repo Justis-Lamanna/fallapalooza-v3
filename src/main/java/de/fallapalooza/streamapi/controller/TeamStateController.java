@@ -1,5 +1,6 @@
 package de.fallapalooza.streamapi.controller;
 
+import de.fallapalooza.streamapi.model.RefreshTeamPayload;
 import de.fallapalooza.streamapi.model.Round;
 import de.fallapalooza.streamapi.model.Team;
 import de.fallapalooza.streamapi.service.TeamsStateService;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+
+import java.util.OptionalInt;
 
 @RestController
 @RequestMapping("/stream/team/display/{displayNum}")
@@ -117,8 +120,8 @@ public class TeamStateController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> refreshTeam(@PathVariable int displayNum) {
-        service.refreshTeamForDisplay(displayNum);
+    public ResponseEntity<Void> refreshTeam(@PathVariable int displayNum, @RequestBody RefreshTeamPayload payload) {
+        service.refreshTeamForDisplay(displayNum, payload.getForcedRound() < 0 ? OptionalInt.empty() : OptionalInt.of(payload.getForcedRound()));
         return ResponseEntity.accepted().build();
     }
 

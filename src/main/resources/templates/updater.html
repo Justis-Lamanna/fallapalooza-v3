@@ -10,17 +10,34 @@
         $(document).ready(function() {
             $('#button').click(function() {
                 const num = $('#displayNum').val();
-                $.post("/stream/team/display/" + num, function(data, status) {
-                    if(status == "success") {
+
+                const payload = {
+                    forcedRound: $('#round').val()
+                };
+
+                if(!payload.forcedRound) {
+                    payload.forcedRound = -1;
+                }
+
+                console.log(payload)
+
+                $.ajax({
+                    url: "/stream/team/display/" + num,
+                    type: "POST",
+                    data: JSON.stringify(payload),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function() {
                         $('#result')
-                        .addClass("text-success")
-                        .removeClass("text-danger")
-                        .text("Updated successfully!");
-                    } else {
+                            .addClass("text-success")
+                            .removeClass("text-danger")
+                            .text("Updated successfully!");
+                    }
+                    error: function(x, xx, errorThrown) {
                         $('#result')
-                        .removeClass("text-success")
-                        .addClass("text-danger")
-                        .text("Failed Update: " + status);
+                            .removeClass("text-success")
+                            .addClass("text-danger")
+                            .text("Update Failed: " + errorThrown);
                     }
                 });
             });
@@ -33,8 +50,13 @@
         <div class="mb-3">
             <label for="displayNum" class="form-label">Display to Update</label>
             <input type="number" class="form-control" id="displayNum" required>
-            <div id="result"></div>
         </div>
+        <div class="mb-3">
+            <label for="round" class="form-label">Forced Current Round</label>
+            <input type="number" class="form-control" id="round">
+            <div id="roundHelp" class="form-text">Leave blank to use defaults</div>
+        </div>
+        <div id="result"></div>
         <button id="button" type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
