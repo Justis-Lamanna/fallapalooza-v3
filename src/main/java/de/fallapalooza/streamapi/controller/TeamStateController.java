@@ -44,7 +44,7 @@ public class TeamStateController {
                 .map(team -> team.getRounds().get(roundNum))
                 .map(round -> round.getScores().get(playerNum))
                 .map(scores -> scores.getScores().get(epNum))
-                .map(String::valueOf)
+                .map(TeamStateController::toStringBlankIfZero)
                 .map(score -> ServerSentEvent.<String>builder()
                         .id(String.format("display-%d-round-%d-player-%d-episode-%d", displayNum, roundNum, playerNum, epNum))
                         .event("team-event")
@@ -58,7 +58,7 @@ public class TeamStateController {
                 .map(Team::getCurrentRound)
                 .map(round -> round.getScores().get(playerNum))
                 .map(scores -> scores.getScores().get(epNum))
-                .map(String::valueOf)
+                .map(TeamStateController::toStringBlankIfZero)
                 .map(score -> ServerSentEvent.<String>builder()
                         .id(String.format("display-%d-round-current-player-%d-episode-%d", displayNum, playerNum, epNum))
                         .event("team-event")
@@ -71,7 +71,7 @@ public class TeamStateController {
         return service.getTeamForDisplay(displayNum)
                 .map(team -> team.getRounds().get(roundNum))
                 .map(Round::getTotal)
-                .map(String::valueOf)
+                .map(TeamStateController::toStringBlankIfZero)
                 .map(score -> ServerSentEvent.<String>builder()
                         .id(String.format("display-%d-round-%d-total", displayNum, roundNum))
                         .event("team-event")
@@ -84,7 +84,7 @@ public class TeamStateController {
         return service.getTeamForDisplay(displayNum)
                 .map(Team::getCurrentRound)
                 .map(Round::getTotal)
-                .map(String::valueOf)
+                .map(TeamStateController::toStringBlankIfZero)
                 .map(score -> ServerSentEvent.<String>builder()
                         .id(String.format("display-%d-round-current-total", displayNum))
                         .event("team-event")
@@ -120,5 +120,9 @@ public class TeamStateController {
     public ResponseEntity<Void> refreshTeam(@PathVariable int displayNum) {
         service.refreshTeamForDisplay(displayNum);
         return ResponseEntity.accepted().build();
+    }
+
+    private static String toStringBlankIfZero(int value) {
+        return value == 0 ? "" : String.valueOf(value);
     }
 }

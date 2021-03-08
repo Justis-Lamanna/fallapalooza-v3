@@ -49,4 +49,9 @@ public class TeamViewController {
         model.addAttribute("field", new EpisodeLiveField(player, episode));
         return "live";
     }
+
+    @GetMapping("/ui")
+    public String getUi() {
+        return "updater";
+    }
 }
